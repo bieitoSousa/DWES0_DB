@@ -24,20 +24,23 @@
         //print $row['nombre'] . "\n";
         echo " <select multiple name='familias'> " ;
              foreach ($conn->query($sql) as $row) {
-              echo '  <option value="'.$row["nombre"].'">'.$row["nombre"].'</option> ' ;//
+              echo '  <option value="'.utf8_encode($row["nombre"]).'">'.utf8_encode($row["nombre"]).'</option> ' ;//
                }     
          echo '   </select>';
 }
  
 function getProductos($conn,$familia){ 
-    $sql = 'SELECT nombre_corto ,PVP FROM producto where familia='.$familia.' ORDER BY nombre';
-    echo ' <form id="form_seleccion" action='. $_SERVER['PHP_SELF'].' method="post"> ' ;
+    
+    echo  '$sql  = [ SELECT nombre_corto ,PVP FROM producto where familia= (SELECT cod FROM familia where nombre="'.$familia.'") ORDER BY nombre ; ]';
+    $sql = 'SELECT nombre_corto ,PVP FROM producto where familia=(SELECT cod FROM familia where nombre="'.$familia.'") ORDER BY nombre ;';
+    echo ' <form id="form_seleccion" action= editar.php method="post"> ' ;
     foreach ($conn->query($sql) as $row) {
+         echo "<p>" ;
          echo  $row['nombre_corto']." : ". $row['PVP']. " "  ;
-         echo ' <input type="submit" value="Editar" > ';
-         echo "\n" ;
+         echo ' <input type="submit" value="Editar">';
+        // echo "<\p>" ;
     }
-    echo '</form>'."\n";
+    echo '</form>';
 }
 ?>   
   
@@ -71,10 +74,9 @@ function getProductos($conn,$familia){
 	<h2>Contenido</h2>
         
         <?php
-        $familia = $_POST["familias"];
-        echo $familia;
-        if (isset($_POST["submit"]) ){
-             echo "se ha presionado submit";
+        if (isset($_POST["familias"]) ){
+                     $conn = $base_datos_PDO;
+                     getProductos($conn,$_POST["familias"]);
         }
         
         /*
