@@ -11,16 +11,9 @@ and open the template in the editor.
         <title></title>
     </head>
     <body>
-        <?php
-            require_once("configuracion.php");
-            try {
-               $base_datos_PDO = new PDO("mysql:host=$servidor;dbname=$base_datos", $usuario, $pass);
-               echo " El usuario [".$usuario."] se a conectado a la base de datos [".$base_datos."] en el servidor [".$servidor."]";   
+         <?php  
+          //?????? DUDA siempre hay que empezar con un index o en estos casos se puede obviar ??????
               header('Location: listado.php');
-            } catch (PDOException $e) {
-                echo "Imposible conectar con la base de datos";
-                exit;
-            }
         ?>
     </body>
 </html>

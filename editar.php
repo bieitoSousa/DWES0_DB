@@ -6,45 +6,60 @@
   <link href="dwes.css" rel="stylesheet" type="text/css">
      <?php
             require_once("configuracion.php");
+            echo "<p> Datos Inicio :";  
             try {
                $base_datos_PDO = new PDO("mysql:host=$servidor;dbname=$base_datos", $usuario, $pass);
-               echo " El usuario [".$usuario."] se a conectado a la base de datos [".$base_datos."] en el servidor [".$servidor."]";   
+               echo "<p> *  El usuario [".$usuario."] se a conectado a la base de datos [".$base_datos."] en el servidor [".$servidor."]";  
+               echo '<p> *  Datos recibidos:  cod ['.$_POST["cod"] .']';
             } catch (PDOException $e) {
                 echo "Imposible conectar con la base de datos";
                 exit;
             }
         ?> 
    <?php
-    function getProductos($conn,$cod){ 
+   /*
+    * Con la conexion a la DB y el codigo del productos muestar los elementos de los  productos en una caja de texto 
+    * permitiendo actualizar sus datos en la DB 
+    */
+        function getProductos(&$conn,$cod){ 
+        try {
+             $conn->beginTransaction();
+                echo  '$sql  = [ SELECT cod,nombre_corto, nombre,descripcion, PVP FROM producto where cod="'.$cod.'";';
+                $sql = 'SELECT cod,nombre_corto, nombre,descripcion, PVP FROM producto where cod="'.$cod.'";]';
+                echo ' <form id="form_seleccion" action= actualizar.php method="post"> ' ;
+                foreach ($conn->query($sql) as $row) {
+                     echo ' <input type="hidden" name="cod" value="'.$row['cod'].'"> '; 
+                     echo " Nombre Corto:" ;
+                     echo ' <input type="text" size="60" maxlength="90" name="nombre_corto" value="'.$row['nombre_corto'].'" maxlength="50">'
+                             . '</input> <br> ';
+                     echo "<p> Nombre:</p> " ;
+                     //?????? DUDA Porque no me muestra un text area y me muestar lo mismo que contype="txt" ??????
+                     echo ' <input type="textarea" size="120" rows="30" cols="40" name="nombre" value="'.$row['nombre'].'"  >'
+                             . '</input><br> ';  
+                     //?????? DUDA Porque no me muestra un text area y me muestar lo mismo que contype="txt" ??????
+                     echo "<p> Descripcion: </p>" ;
+                     echo ' <input type="textarea"  size="120" rows="10" cols="40" name="descripcion" value="'.$row['descripcion'].'"  >'
+                             . '</input><br> ';  
+                     echo " PVP: " ;
+                     echo ' <input type="text" size="15" maxlength="30" name="PVP"  value="'.$row['PVP'].'" maxlength="50">'
+                             . '</input><br> '; 
 
-      echo  '$sql  = [ SELECT cod,nombre_corto, nombre,descripcion, PVP FROM producto where cod="'.$cod.'";';
-      $sql = 'SELECT cod,nombre_corto, nombre,descripcion, PVP FROM producto where cod="'.$cod.'";';
-      echo ' <form id="form_seleccion" action= actualizar.php method="post"> ' ;
-      foreach ($conn->query($sql) as $row) {
-           echo  $row['cod'];
-           echo "<p> Nombre Corto: </p>" ;
-           echo ' <input type="text" name="nombre_corto" maxlength="50">'
-                      .  $row['nombre_corto']
-                   . '</input><br> ';
-           echo "<p> Nombre: </p>" ;
-           echo ' <input type="text" name="nombre" maxlength="50">'
-                      .  $row['nombre']
-                   . '</input><br> ';        
-           echo "<p> Descripcion: </p>" ;
-           echo ' <input type="text" name="nombre" maxlength="50">'
-                      .  $row['descripcion']
-                   . '</input><br> ';  
-           echo "<p> PVP: </p>" ;
-           echo ' <input type="text" name="nombre" maxlength="50">'
-                      .  $row['descripcion']
-                   . '</input><br> '; 
+                     echo ' <input type="submit" name="button" value="Actualizar">';
+                     echo ' <input type="submit" name="button" value="Cancelar">';
+                    // echo "<\p>" ;
+                }
+                echo '</form>';
+             $conn->commit();
+        } catch (PDOException $e) {
+            $conn->rollBack();
+            echo "Hubo algún error en la transacción " . $e->getMessage();
+        } finally {
+            $conn=null;
+        }
+        
+    }     
 
-           echo ' <input type="submit" value="Actualizar">';
-           echo ' <input type="submit" value="Cancelar">';
-          // echo "<\p>" ;
-      }
-      echo '</form>';
-  }
+     
 ?>  
   
 </head>
@@ -52,34 +67,15 @@
 <body>
 
 <div id="encabezado">
-	<h1>Ejercicio: </h1>
+	<h1> Edición de un producto: </h1>
 	<form id="form_seleccion" action="<?php echo $_SERVER['PHP_SELF'];?>" method="post">
 	</form>
 </div>
 
 <div id="contenido">
-	<h2>Contenido</h2>
-        <?php
-    try {
-            $base_datos_PDO->beginTransaction();
-            
-            $_POST["producto"]
-            
-            
-                $sql = "update usuarios set cuenta = 0 where id = :id";
-                $sentencia = $base_datos_PDO->prepare($sql);
-                $sentencia->bindValue(":id", 1);
-                $sentencia->execute();
-                $sentencia->bindValue(":id", 2);
-                $sentencia->execute();
-                $sentencia->bindValue(":id", 3);
-                $sentencia->execute();
-            
-                $base_datos_PDO->commit();
-            } catch (PDOException $e) {
-            $base_datos_PDO->rollBack();
-            echo "Hubo algún error en la transacción " . $e->getMessage();
-            }
+	<h2>Producto</h2>
+     <?php
+            getProductos($base_datos_PDO,$_POST["cod"]);
      ?>  
         
 </div>

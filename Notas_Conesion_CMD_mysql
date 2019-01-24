@@ -1,0 +1,25 @@
+/************ Conectarse cmd-mysql ***********/
+cd ..
+cd C:\xampp\mysql\bin
+cd J:\Xampp\mysql\bin
+
+% mysql -h localhost -u root -p
+
+/******* ver DB y tablas ******/
+show databases
+show tables;
+
+/******* ver si estan creadas tablas ******/
+use dwes;
+SELECT * FROM stock ;
+SELECT * FROM producto ;
+SELECT * FROM familia ;
+SELECT * FROM stock ; 
+
+/********* Usuario + Permisos ******/
+CREATE USER 'dwes'@'localhost' IDENTIFIED BY 'abc123.';
+GRANT ALL PRIVILEGES ON dwes.* TO 'dwes'@'localhost';
+FLUSH PRIVILEGES;
+
+
+** DROP TABLE stock;
