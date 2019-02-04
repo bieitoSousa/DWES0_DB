@@ -5,26 +5,22 @@
   <title> Edición de un producto </title>
   <link href="dwes.css" rel="stylesheet" type="text/css">
      <?php
-            require_once("configuracion.php");
-            echo "<p> Datos Inicio :";  
-            try {
-               $base_datos_PDO = new PDO("mysql:host=$servidor;dbname=$base_datos", $usuario, $pass);
-               echo "<p> *  El usuario [".$usuario."] se a conectado a la base de datos [".$base_datos."] en el servidor [".$servidor."]";  
-               echo '<p> *  Datos recibidos:  cod ['.$_POST["cod"] .']';
-            } catch (PDOException $e) {
-                echo "Imposible conectar con la base de datos";
-                exit;
-            }
+        require_once("configuracion.php"); 
         ?> 
    <?php
    /*
     * Con la conexion a la DB y el codigo del productos muestar los elementos de los  productos en una caja de texto 
     * permitiendo actualizar sus datos en la DB 
     */
-        function getProductos(&$conn,$cod){ 
-        try {
-             $conn->beginTransaction();
-                echo  '$sql  = [ SELECT cod,nombre_corto, nombre,descripcion, PVP FROM producto where cod="'.$cod.'";';
+    function getProductos($cod){ 
+          global $base_datos_PDO;
+            if($base_datos_PDO == null){
+                  openDB();
+             }
+              $conn=$base_datos_PDO;
+        try {        
+              //$conn->beginTransaction(); Inecesario : se trata de una única sentencia SQL o se ejecuta o no.
+                //echo  '$sql  = [ SELECT cod,nombre_corto, nombre,descripcion, PVP FROM producto where cod="'.$cod.'";';
                 $sql = 'SELECT cod,nombre_corto, nombre,descripcion, PVP FROM producto where cod="'.$cod.'";]';
                 echo ' <form id="form_seleccion" action= actualizar.php method="post"> ' ;
                 foreach ($conn->query($sql) as $row) {
@@ -33,28 +29,34 @@
                      echo ' <input type="text" size="60" maxlength="90" name="nombre_corto" value="'.$row['nombre_corto'].'" maxlength="50">'
                              . '</input> <br> ';
                      echo "<p> Nombre:</p> " ;
-                     //?????? DUDA Porque no me muestra un text area y me muestar lo mismo que contype="txt" ??????
-                     echo ' <input type="textarea" size="120" rows="30" cols="40" name="nombre" value="'.$row['nombre'].'"  >'
-                             . '</input><br> ';  
-                     //?????? DUDA Porque no me muestra un text area y me muestar lo mismo que contype="txt" ??????
+                     echo    '<textarea name="nombre"  size="120" rows="10" cols="60">'
+                             .$row['nombre']
+                             . '</textarea><br> '
+                             ;  
+                    
                      echo "<p> Descripcion: </p>" ;
-                     echo ' <input type="textarea"  size="120" rows="10" cols="40" name="descripcion" value="'.$row['descripcion'].'"  >'
-                             . '</input><br> ';  
+                     echo ' <textarea  name="descripcion"  size="120" rows="10" cols="60"    >'
+                                .$row['descripcion']
+                                 . ' </textarea><br><br><br>'
+                                 ;                      
                      echo " PVP: " ;
                      echo ' <input type="text" size="15" maxlength="30" name="PVP"  value="'.$row['PVP'].'" maxlength="50">'
-                             . '</input><br> '; 
+                             . '</input><br><br> '; 
 
                      echo ' <input type="submit" name="button" value="Actualizar">';
                      echo ' <input type="submit" name="button" value="Cancelar">';
-                    // echo "<\p>" ;
+                    
                 }
                 echo '</form>';
-             $conn->commit();
+            // $conn->commit(); Inecesario : se trata de una única sentencia SQL no es necesario actualizar
         } catch (PDOException $e) {
             $conn->rollBack();
+            closeDB(); // cerrar conesion
+           // $conn=null;
             echo "Hubo algún error en la transacción " . $e->getMessage();
         } finally {
-            $conn=null;
+            closeDB(); // cerrar conesion
+           // $conn=null;
         }
         
     }     
@@ -75,7 +77,7 @@
 <div id="contenido">
 	<h2>Producto</h2>
      <?php
-            getProductos($base_datos_PDO,$_POST["cod"]);
+            getProductos($_POST["cod"]);
      ?>  
         
 </div>

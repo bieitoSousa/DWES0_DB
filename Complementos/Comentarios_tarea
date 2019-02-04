@@ -1,0 +1,52 @@
+Hola Bieito,
+la tarea está bastante bien pero tienes algunos errores que te paso a comentar,
+ al igual que las dudas que me comentas dentro del código:
+•	DUDA siempre hay que empezar con un index o en estos casos se puede obviar:
+ ?  Lo más cómodo es que la página principal de una aplicación sea la index
+ ?  porque así nada más acceder al directorio en el que se encuentra el navegador ya nos la abre,
+ ?  por lo que en gneral utiliza como primera página directametne index.php,
+ ?  pero no hagas un redirect como hiciste en esta porque te lo penalizan en el SEO.
+ ?  Aunque en esta práctica se pedía un archivo listado.php, en realidad podría ser directamente index.php.
+•	DUDA como se muestra un desplegable sin mostrar la caja entera al principio.
+?   Simplemente quitándole la palabra múltiple que le has puesto en el select.
+?   Porque al ponerle multiple te permite seleccionar varias opciones a la vez pulsando la tecla CTRL
+?   pero no es lo que queremos para esta aplicación. echo " <select multiple name='familias'> " ;
+•	DUDA Porque si corto la conesion me da error. 
+?   Porque esa conexión la sigues usando en el resto de la página.
+?   Lo más cómodo es crear una función conexion() y llamarla justo antes de hacer una sentencia SQL
+?   y otra desconexión() que la llamas cuando ya te devuelve los datos
+•	DUDA Porque pegando la misma salida en el cmd-myslq funciona y ejecutandola por PDO las palabras con acentos
+?   no funcionan. Porque a la hora de crear la conexión tienes que establecer el juego de caracteres.
+?   En esta página te explican dos formas: https://www.baulphp.com/pdo-mysql-utf-8-caracteres-especiales-en-php/.
+?   Por ejemplo, para tu conexión podría ser: $base_datos_PDO = new PDO("mysql:host=$servidor;dbname=$base_datos;charset=utf8", $usuario, $pass);
+•	DUDA Porque no me muestra un text area y me muestar lo mismo que contype="txt".
+?   Porque los textarea no son un campo de tipo input sino que se escriben con las etiquetas
+?   <textarea name="descripcion"></textarea>. https://www.w3schools.com/tags/tag_textarea.asp
+•	DUDA Porque no me funciona : //echo '<meta http-equiv="refresh" content="1"; url= "listado.php">'//??????
+?    hay diferencia entre hacerlo con header: No te funciona porque las etiquetas <meta>
+?    el navegador solo es capaz de interpretarlas dentro del encabezado de la página html.
+?    Para que lo interprete PHP hay que ponerlo con header("Location: ...")
+•   Tienes la costumbre de mostrar en el navegador con echo todas las comprobaciones que haces dentro del código
+?   lo que lo convierte en un código muy difícil de seguir y no válido para subir a producción.
+?    Las comprobaciones que vas haciendo están bien para que mientras codificas vayas viendo que pasa con tus variables, y tus sentecias SQL pero cuando ya ves que funciona, todo eso hay que eliminarlo y como mucho dejar algunos comentarios importantes pero no mostrarlo en el navegador al usuario final.
+•	Listado.php:
+o	A la hora de hacer un select no necesitas meterlo en una transacción porque como se trata de
+-    una única sentencia SQL o se ejecuta o no. Las transacciones se usan cuando se realizan modificaciones
+-    ya sean de insert, delete o update en varias tablas al mismo tiempo. En ese caso sí que hay que meter
+-    las sentencias dentro de una transacción por si se produce algún fallo en la mitad de la transacción y no queremos que nos queden inconsistencias en la BD.
+o	La sentencia para seleccionar los productos de una familia es mucho más fácil de lo que tu has creado,
+-    no necesitas una subconsulta porque ya tienes el ID de la familia en $familia.
+-    Sería: SELECT nombre_corto, PVP, cod FROM producto where familia=$familia) ORDER BY nombre
+•	editar.php:
+o	Lo mismo que en la anterior no necesitas una transacción.
+•	actualizar.php:
+o	En esta podrías usar la transacción porque estás haciendo muchas sentencias update,
+-    pero en realidad en la misma sentencia podrías hacer la actualización de todos los datos a la vez por
+-    lo que no tiene sentido hacer una sentencia por cada campo ya que eso sobrecargaría muchísimo una aplicación
+-    que tuviese muchos usuarios simultáneos. Solo tienes que separar con comas los campo que quieres modificar:
+-    update producto set nombre_corto = $nom_cor, nombre=$nombre, descripcion=$descripcion, PVP=$pvp where cod =$cod;
+
+Intentea corregir lo que te comento en los apartados anteriores y vuelve a enviarme la tarea.
+Saludos,
+Sonia
+
